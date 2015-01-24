@@ -1,2 +1,3 @@
-# wp-social-pinwall
-WP Social Pinwall
+# FB-pinwall
+
+Work in progress
