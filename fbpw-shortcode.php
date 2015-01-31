@@ -4,6 +4,7 @@ defined('ABSPATH') or die("No script kiddies please!");
 add_shortcode( 'fbpw', 'fbpw_func' );
 
 function fbpw_func() {
+
 	//Get Data from Facebook feeds
 	$feed = get_fb_feed_data();
 
@@ -13,6 +14,7 @@ function fbpw_func() {
 	//Replace Shortcode
 	return $html;	
 }
+
 
 function get_fb_feed_data() {
 
@@ -63,7 +65,7 @@ function feed_to_html(array $feed) {
 		$output .= "</a>";
 	}
 
-	$output .= "</div>";
+	$output .= "</div> <div style='clear:both;'></div>";
 
 	return $output;
 }

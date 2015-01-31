@@ -1,0 +1,8 @@
+.fbpw {
+	width: 100%;
+}
+
+.fbpw img {
+	max-width: 230px;
+	padding: 10px;
+}
