@@ -37,15 +37,15 @@ function get_fb_feed_data() {
 
 	foreach ($profile_ids as $profile_id) {
 		//retrive data
-		$data = file_get_contents("https://graph.facebook.com/{$profile_id}/photos/uploaded?{$authToken}");
+		$data = file_get_contents("https://graph.facebook.com/{$profile_id}/photos/uploaded?{$authToken}&limit=50");
 		$images = json_decode($data);
 
 		foreach ($images->data as $image) {
 
 			$feed[] = array(
 				'title' => $image->from->name,
-				'src' => $image->source,
-				'url' => $image->link,
+				'thumb' => $image->images[3]->source,
+				'src' => $image->images[0]->source,
 				'created' => strtotime($image->created_time),
 				'target_blank' => '1',
 			);
@@ -60,8 +60,8 @@ function feed_to_html(array $feed) {
 	$output = "<div class='fbpw'>";
 
 	foreach ($feed as $data) {
-		$output .= "<a href=''>";
-		$output .= "<img src='{$data['src']}'>";
+		$output .= "<a href='{$data['src']}' class='fbpw-image'>";
+		$output .= "<img src='{$data['thumb']}'>";
 		$output .= "</a>";
 	}
 

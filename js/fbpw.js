@@ -8,6 +8,19 @@ jQuery(function() {
 	  $container.masonry();
 	});
 
+	$(".fbpw-image").colorbox(
+		{
+			rel:'fbpw-image',
+			transition:"fade",
+			reposition: true,
+			scrolling: false,
+			maxWidth: "95%",
+			maxHeight: "95%",
+			opacity: 0.65,
+			fixed: true,
+			current: ""
+		}
+	);
 
 	//Todo Function for Fluid image resize
 
