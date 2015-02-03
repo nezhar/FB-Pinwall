@@ -26,6 +26,15 @@ function get_fb_feed_data() {
 	//FB Pages for feed
 	$profile_ids = explode(",",FB_PAGES);
 
+
+
+	//Check if a feed Already Exists
+	//Get Feed from file or create a feed file and pass data
+	$feedHash = substr(md5(FB_PAGES), 0, 8).".txt";
+
+
+
+
 	//App Info, needed for Auth
 	$app_id = APP_ID;
 	$app_secret = APP_SECRET;
@@ -51,6 +60,8 @@ function get_fb_feed_data() {
 			);
 		}
 	}
+
+	
 
 	return $feed;
 }
