@@ -16,7 +16,7 @@ jQuery(function() {
 			scrolling: false,
 			maxWidth: "95%",
 			maxHeight: "95%",
-			opacity: 0.65,
+			opacity: 1,
 			fixed: true,
 			current: ""
 		}
