@@ -95,6 +95,14 @@ class MySettingsPage
             array( $this, 'facebook_page_callback' ), 
             'fb-pinwall-settings', 
             'fb-api-settings'
+        );
+
+        add_settings_field(
+            'num_posts', 
+            'Number of Posts from Feed', 
+            array( $this, 'num_posts_callback' ), 
+            'fb-pinwall-settings', 
+            'fb-api-settings'
         );    
     }
 
@@ -114,6 +122,9 @@ class MySettingsPage
 
         if( isset( $input['facebook_page'] ) )
             $new_input['facebook_page'] = sanitize_text_field( $input['facebook_page'] );
+
+        if( isset( $input['num_posts'] ) )
+            $new_input['num_posts'] = sanitize_text_field( $input['num_posts'] );
 
         return $new_input;
     }
@@ -153,6 +164,14 @@ class MySettingsPage
         printf(
             '<input type="text" id="facebook_page" name="fb-pinwall-options[facebook_page]" value="%s" />',
             isset( $this->options['facebook_page'] ) ? esc_attr( $this->options['facebook_page']) : ''
+        );
+    }
+
+    public function num_posts_callback()
+    {
+        printf(
+            '<input type="text" id="num_posts" name="fb-pinwall-options[num_posts]" value="%s" />',
+            isset( $this->options['num_posts'] ) ? esc_attr( $this->options['num_posts']) : ''
         );
     }
 }

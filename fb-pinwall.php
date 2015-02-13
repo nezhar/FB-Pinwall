@@ -33,4 +33,5 @@ defined('ABSPATH') or die("No script kiddies please!");
 include("fbpw-setting.php");
 include("fbpw-headers.php");
 include("fbpw-options.php");
+include("fbpw-functions.php");
 include("fbpw-shortcode.php");

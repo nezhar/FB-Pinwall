@@ -34,7 +34,6 @@ function get_fb_feed_data() {
 
 
 
-
 	//App Info, needed for Auth
 	$app_id = APP_ID;
 	$app_secret = APP_SECRET;
@@ -46,14 +45,22 @@ function get_fb_feed_data() {
 
 	foreach ($profile_ids as $profile_id) {
 		//retrive data
-		$data = file_get_contents("https://graph.facebook.com/{$profile_id}/photos/uploaded?{$authToken}&limit=50");
+		$data = file_get_contents("https://graph.facebook.com/{$profile_id}/photos/uploaded?{$authToken}&limit=".NUM_POST);
 		$images = json_decode($data);
 
 		foreach ($images->data as $image) {
 
+			$wp_upload_dir = wp_upload_dir('fbpw');
+
+			//Create a custom Thumbnail
+			$thumb = 'thumb_'.md5($image->images[0]->source).".".end(explode('.', $image->images[0]->source));
+			if (!file_exists($wp_upload_dir['path']."/".$thumb)) {
+				make_thumb($image->images[0]->source, $wp_upload_dir['path']."/".$thumb, 250);
+			}
+
 			$feed[] = array(
 				'title' => $image->from->name,
-				'thumb' => $image->images[3]->source,
+				'thumb' => $wp_upload_dir['url']."/".$thumb,
 				'src' => $image->images[0]->source,
 				'created' => strtotime($image->created_time),
 				'target_blank' => '1',
@@ -61,7 +68,6 @@ function get_fb_feed_data() {
 		}
 	}
 
-	
 
 	return $feed;
 }
