@@ -12,7 +12,7 @@ function fbpw_func() {
 	$html = feed_to_html($feed);
 
 	//Replace Shortcode
-	return $html;	
+	return $html;
 }
 
 
@@ -53,7 +53,7 @@ function get_fb_feed_data() {
 			$wp_upload_dir = wp_upload_dir('fbpw');
 
 			//Create a custom Thumbnail
-			$thumb = 'thumb_'.md5($image->images[0]->source).".".end(explode('.', $image->images[0]->source));
+			$thumb = 'thumb_'.md5($image->images[0]->source).".".end(explode('.', strtok($image->images[0]->source, '?')));
 			if (!file_exists($wp_upload_dir['path']."/".$thumb)) {
 				make_thumb($image->images[0]->source, $wp_upload_dir['path']."/".$thumb, 250);
 			}
