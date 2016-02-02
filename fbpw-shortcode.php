@@ -3,10 +3,14 @@ defined('ABSPATH') or die("No script kiddies please!");
 
 add_shortcode( 'fbpw', 'fbpw_func' );
 
-function fbpw_func() {
+function fbpw_func($atts) {
+    $options = shortcode_atts(array(
+        'fb-pages' => FB_PAGES,
+        'num-posts' => NUM_POST
+    ), $atts);
 
 	//Get Data from Facebook feeds
-	$feed = get_fb_feed_data();
+	$feed = get_fb_feed_data($options['fb-pages'], $options['num-posts']);
 
 	//Create HTML of the feed Data
 	$html = feed_to_html($feed);
@@ -16,7 +20,7 @@ function fbpw_func() {
 }
 
 
-function get_fb_feed_data() {
+function get_fb_feed_data($fb_pages = FB_PAGES, $num_posts = NUM_POST) {
 
 	/* TO DO
 	define('Repeater', '');
@@ -24,15 +28,11 @@ function get_fb_feed_data() {
 	*/
 
 	//FB Pages for feed
-	$profile_ids = explode(",",FB_PAGES);
-
-
+	$profile_ids = explode(",", $fb_pages);
 
 	//Check if a feed Already Exists
 	//Get Feed from file or create a feed file and pass data
-	$feedHash = substr(md5(FB_PAGES), 0, 8).".txt";
-
-
+	$feedHash = substr(md5($fb_pages), 0, 8).".txt";
 
 	//App Info, needed for Auth
 	$app_id = APP_ID;
@@ -45,7 +45,7 @@ function get_fb_feed_data() {
 
 	foreach ($profile_ids as $profile_id) {
 		//retrive data
-		$data = file_get_contents("https://graph.facebook.com/{$profile_id}/photos/uploaded?{$authToken}&limit=".NUM_POST);
+		$data = file_get_contents("https://graph.facebook.com/{$profile_id}/photos/uploaded?{$authToken}&limit=".$num_posts);
 		$images = json_decode($data);
 
 		foreach ($images->data as $image) {

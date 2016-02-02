@@ -5,7 +5,7 @@ function load_style()
     // Register style
     wp_register_style( 'colorbox', plugins_url( '/css/colorbox.css', __FILE__ ), array(), '20140131', 'all' );
     wp_enqueue_style( 'colorbox' );
-    
+
     wp_register_style( 'fbpw', plugins_url( '/css/fbpw.css', __FILE__ ), array(), '20140131', 'all' );
     wp_enqueue_style( 'fbpw' );
 }
