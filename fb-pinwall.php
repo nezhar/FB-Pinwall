@@ -3,7 +3,7 @@
 /*  Copyright 2015  Nezbeda Harald  (email : dev@nezhar.com)
 
     This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License, version 2, as 
+    it under the terms of the GNU General Public License, version 2, as
     published by the Free Software Foundation.
 
     This program is distributed in the hope that it will be useful,
@@ -20,7 +20,7 @@
  * Plugin Name: Facebook Pinwall
  * Plugin URI: http://nezhar.com/
  * Description: A simple way to add a facebook image feed as a pinwall to wordpress
- * Version: 0.0.1
+ * Version: 1.0.0
  * Author: Nezbeda Harald
  * Author URI: http://nezhar.com/
  * Text Domain: fbpw
