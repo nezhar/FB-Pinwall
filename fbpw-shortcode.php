@@ -5,22 +5,29 @@ add_shortcode( 'fbpw', 'fbpw_func' );
 
 function fbpw_func($atts) {
     $options = shortcode_atts(array(
-        'fb-pages' => FB_PAGES,
-        'num-posts' => NUM_POST
+        'fb-pages' => FBPW_FB_PAGES,
+        'num-posts' => FBPW_NUM_POST
     ), $atts);
 
-	//Get Data from Facebook feeds
-	$feed = get_fb_feed_data($options['fb-pages'], $options['num-posts']);
+    if (FBPW_APP_ID && FBPW_APP_SECRET) {
+        try {
+            //Get Data from Facebook feeds
+        	$feed = fbpw_get_fb_feed_data($options['fb-pages'], $options['num-posts']);
 
-	//Create HTML of the feed Data
-	$html = feed_to_html($feed);
+        	//Create HTML of the feed Data
+        	$html = fbpw_get_html_from_feed($feed);
 
-	//Replace Shortcode
-	return $html;
+            //Replace Shortcode
+        	return $html;
+        } catch (Exception $e) {
+            return fbpw_error_message($e->getMessage());
+        }
+    } else {
+        return fbpw_error_message('APP_ID and APP_SECRET are not configured');
+    }
 }
 
-
-function get_fb_feed_data($fb_pages = FB_PAGES, $num_posts = NUM_POST) {
+function fbpw_get_fb_feed_data($fb_pages = FBPW_FB_PAGES, $num_posts = FBPW_NUM_POST) {
 
 	/* TO DO
 	define('Repeater', '');
@@ -35,44 +42,49 @@ function get_fb_feed_data($fb_pages = FB_PAGES, $num_posts = NUM_POST) {
 	$feedHash = substr(md5($fb_pages), 0, 8).".txt";
 
 	//App Info, needed for Auth
-	$app_id = APP_ID;
-	$app_secret = APP_SECRET;
+	$app_id = FBPW_APP_ID;
+	$app_secret = FBPW_APP_SECRET;
 
 	//retrieve auth token
-	$authToken = file_get_contents("https://graph.facebook.com/oauth/access_token?type=client_cred&client_id={$app_id}&client_secret={$app_secret}");
+	$authToken = @file_get_contents("https://graph.facebook.com/oauth/access_token?type=client_cred&client_id={$app_id}&client_secret={$app_secret}");
+    if ($authToken === false) {
+        throw new Exception("Could not create auth token. FBPW_APP_ID or FBPW_APP_SECRET might not be valid");
+    }
 
 	$feed = array();
 
 	foreach ($profile_ids as $profile_id) {
 		//retrive data
-		$data = file_get_contents("https://graph.facebook.com/{$profile_id}/photos/uploaded?{$authToken}&limit=".$num_posts);
-		$images = json_decode($data);
+		$data = @file_get_contents("https://graph.facebook.com/{$profile_id}/photos/uploaded?{$authToken}&limit=".$num_posts);
+        if ($data === false) {
+            trigger_error("Could not fetch data. Invalid profile Id: {$profile_id}", E_USER_NOTICE);
+        } else {
+            $images = json_decode($data);
+    		foreach ($images->data as $image) {
 
-		foreach ($images->data as $image) {
+    			$wp_upload_dir = wp_upload_dir('fbpw');
 
-			$wp_upload_dir = wp_upload_dir('fbpw');
+    			//Create a custom Thumbnail
+    			$thumb = 'thumb_'.md5($image->images[0]->source).".".fbpw_get_extension_from_url($image->images[0]->source);
+    			if (!file_exists($wp_upload_dir['path']."/".$thumb)) {
+    				make_thumb($image->images[0]->source, $wp_upload_dir['path']."/".$thumb, 250);
+    			}
 
-			//Create a custom Thumbnail
-			$thumb = 'thumb_'.md5($image->images[0]->source).".".end(explode('.', strtok($image->images[0]->source, '?')));
-			if (!file_exists($wp_upload_dir['path']."/".$thumb)) {
-				make_thumb($image->images[0]->source, $wp_upload_dir['path']."/".$thumb, 250);
-			}
-
-			$feed[] = array(
-				'title' => $image->from->name,
-				'thumb' => $wp_upload_dir['url']."/".$thumb,
-				'src' => $image->images[0]->source,
-				'created' => strtotime($image->created_time),
-				'target_blank' => '1',
-			);
-		}
+    			$feed[] = array(
+    				'title' => $image->from->name,
+    				'thumb' => $wp_upload_dir['url']."/".$thumb,
+    				'src' => $image->images[0]->source,
+    				'created' => strtotime($image->created_time),
+    				'target_blank' => '1',
+    			);
+    		}
+        }
 	}
-
 
 	return $feed;
 }
 
-function feed_to_html(array $feed) {
+function fbpw_get_html_from_feed(array $feed) {
 
 	$output = "<div class='fbpw'>";
 
@@ -85,4 +97,16 @@ function feed_to_html(array $feed) {
 	$output .= "</div> <div style='clear:both;'></div>";
 
 	return $output;
+}
+
+function fbpw_get_extension_from_url($url) {
+    // Split URL to get files extension
+    $data = explode('.', strtok($url, '?'));
+    return end($data);
+}
+
+function fbpw_error_message($message) {
+    if (defined('WP_DEBUG') and WP_DEBUG) {
+        return $message;
+    }
 }

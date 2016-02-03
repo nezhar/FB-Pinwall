@@ -1,7 +1,7 @@
 <?php
-defined('ABSPATH') or die("No script kiddies please!");
+namespace fbpw;
 
-class MySettingsPage
+class FbpwSettingsPages
 {
     /**
      * Holds the values to be used in the fields callbacks
@@ -24,10 +24,10 @@ class MySettingsPage
     {
         // This page will be under "Settings"
         add_options_page(
-            'Settings Admin', 
-            'FB Pinwall', 
-            'manage_options', 
-            'fb-pinwall-settings', 
+            'Settings Admin',
+            'FB Pinwall',
+            'manage_options',
+            'fb-pinwall-settings',
             array( $this, 'create_admin_page' )
         );
     }
@@ -42,13 +42,13 @@ class MySettingsPage
         ?>
         <div class="wrap">
             <?php screen_icon(); ?>
-            <h2>FB Pinwall</h2>           
+            <h2>FB Pinwall</h2>
             <form method="post" action="options.php">
             <?php
                 // This prints out all hidden setting fields
-                settings_fields( 'fb-pinwall-option' );   
+                settings_fields( 'fb-pinwall-option' );
                 do_settings_sections( 'fb-pinwall-settings' );
-                submit_button(); 
+                submit_button();
             ?>
             </form>
         </div>
@@ -59,7 +59,7 @@ class MySettingsPage
      * Register and add settings
      */
     public function page_init()
-    {        
+    {
         register_setting(
             'fb-pinwall-option', // Option group
             'fb-pinwall-options', // Option name
@@ -71,39 +71,39 @@ class MySettingsPage
             'FB API v2.x Settings', // Title
             array( $this, 'print_section_info' ), // Callback
             'fb-pinwall-settings' // Page
-        );  
+        );
 
         add_settings_field(
             'facebook_app_key', // ID
-            'Facebook App Key', // Title 
+            'Facebook App Key', // Title
             array( $this, 'facebook_app_key_callback' ), // Callback
             'fb-pinwall-settings', // Page
-            'fb-api-settings' // Section           
-        );      
+            'fb-api-settings' // Section
+        );
 
         add_settings_field(
-            'facebook_app_secret', 
-            'Facebook App Secret', 
-            array( $this, 'facebook_app_secret_callback' ), 
-            'fb-pinwall-settings', 
+            'facebook_app_secret',
+            'Facebook App Secret',
+            array( $this, 'facebook_app_secret_callback' ),
+            'fb-pinwall-settings',
             'fb-api-settings'
         );
 
         add_settings_field(
-            'facebook_page', 
-            'Facebook Page for Feed', 
-            array( $this, 'facebook_page_callback' ), 
-            'fb-pinwall-settings', 
+            'facebook_page',
+            'Facebook Page for Feed',
+            array( $this, 'facebook_page_callback' ),
+            'fb-pinwall-settings',
             'fb-api-settings'
         );
 
         add_settings_field(
-            'num_posts', 
-            'Number of Posts from Feed', 
-            array( $this, 'num_posts_callback' ), 
-            'fb-pinwall-settings', 
+            'num_posts',
+            'Number of Posts from Feed',
+            array( $this, 'num_posts_callback' ),
+            'fb-pinwall-settings',
             'fb-api-settings'
-        );    
+        );
     }
 
     /**
@@ -129,7 +129,7 @@ class MySettingsPage
         return $new_input;
     }
 
-    /** 
+    /**
      * Print the Section text
      */
     public function print_section_info()
@@ -137,7 +137,7 @@ class MySettingsPage
         echo 'This Setting are used to define the connection to the facebook API in order to access a facebook page feed.';
     }
 
-    /** 
+    /**
      * Get the settings option array and print one of its values
      */
     public function facebook_app_key_callback()
@@ -148,7 +148,7 @@ class MySettingsPage
         );
     }
 
-    /** 
+    /**
      * Get the settings option array and print one of its values
      */
     public function facebook_app_secret_callback()
@@ -175,6 +175,3 @@ class MySettingsPage
         );
     }
 }
-
-if( is_admin() )
-    $my_settings_page = new MySettingsPage();

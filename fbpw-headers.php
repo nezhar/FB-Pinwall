@@ -1,6 +1,6 @@
 <?php
 
-function load_style()
+function fbpw_load_style()
 {
     // Register style
     wp_register_style( 'colorbox', plugins_url( '/css/colorbox.css', __FILE__ ), array(), '20140131', 'all' );
@@ -10,7 +10,7 @@ function load_style()
     wp_enqueue_style( 'fbpw' );
 }
 
-function load_script()
+function fbpw_load_script()
 {
     wp_enqueue_script( 'masonry');
 
@@ -23,5 +23,5 @@ function load_script()
     wp_enqueue_script( 'fbpw' );
 }
 
-add_action( 'wp_enqueue_scripts', 'load_script' );
-add_action( 'wp_enqueue_scripts', 'load_style' );
+add_action( 'wp_enqueue_scripts', 'fbpw_load_script' );
+add_action( 'wp_enqueue_scripts', 'fbpw_load_style' );

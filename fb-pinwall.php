@@ -20,7 +20,7 @@
  * Plugin Name: Facebook Pinwall
  * Plugin URI: http://nezhar.com/
  * Description: A simple way to add a facebook image feed as a pinwall to wordpress
- * Version: 1.0.0
+ * Version: 1.0.1
  * Author: Nezbeda Harald
  * Author URI: http://nezhar.com/
  * Text Domain: fbpw
@@ -35,3 +35,7 @@ include("fbpw-headers.php");
 include("fbpw-options.php");
 include("fbpw-functions.php");
 include("fbpw-shortcode.php");
+
+if (is_admin()) {
+    $fbpw_settings_page = new fbpw\FbpwSettingsPages();
+}

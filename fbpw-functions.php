@@ -1,7 +1,7 @@
 <?php
 defined('ABSPATH') or die("No script kiddies please!");
 
-function make_thumb($src, $dest, $desired_width) {
+function fbpw_make_thumb($src, $dest, $desired_width) {
 
 	/* read the source image */
 	$source_image = imagecreatefromjpeg($src);

@@ -29,3 +29,7 @@ If **fb-pages** or **num-posts** are set in the shortcode, the options will be o
 The first call is creating a list of thumbnails that are stored locally (first call will usually take longer). The images are served from Facebook.
 
 Images get enlarged using Colorbox: http://www.jacklmoore.com/colorbox/
+
+#### Debug
+
+Debug information is shoud if you enable the **WP_DEBUG** option inside the **wp-config.php** file of your Wordpress isntalation.
