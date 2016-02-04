@@ -30,12 +30,11 @@
 
 defined('ABSPATH') or die("No script kiddies please!");
 
-include("fbpw-setting.php");
-include("fbpw-headers.php");
-include("fbpw-options.php");
+include("fbpw-classes.php");
 include("fbpw-functions.php");
 include("fbpw-shortcode.php");
 
+// Load Admin settings page
 if (is_admin()) {
-    $fbpw_settings_page = new fbpw\FbpwSettingsPages();
+    $fbpw_settings_page = new fbpw\SettingsPages();
 }

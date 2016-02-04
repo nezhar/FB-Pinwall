@@ -1,7 +1,7 @@
 <?php
 namespace fbpw;
 
-class FbpwSettingsPages
+class SettingsPages
 {
     /**
      * Holds the values to be used in the fields callbacks
@@ -111,22 +111,22 @@ class FbpwSettingsPages
      *
      * @param array $input Contains all settings fields as array keys
      */
-    public function sanitize( $input )
+    public function sanitize($input)
     {
-        $new_input = array();
+        $newInput = array();
         if( isset( $input['facebook_app_key'] ) )
-            $new_input['facebook_app_key'] = absint( $input['facebook_app_key'] );
+            $newInput['facebook_app_key'] = absint( $input['facebook_app_key'] );
 
         if( isset( $input['facebook_app_secret'] ) )
-            $new_input['facebook_app_secret'] = sanitize_text_field( $input['facebook_app_secret'] );
+            $newInput['facebook_app_secret'] = sanitize_text_field( $input['facebook_app_secret'] );
 
         if( isset( $input['facebook_page'] ) )
-            $new_input['facebook_page'] = sanitize_text_field( $input['facebook_page'] );
+            $newInput['facebook_page'] = sanitize_text_field( $input['facebook_page'] );
 
         if( isset( $input['num_posts'] ) )
-            $new_input['num_posts'] = sanitize_text_field( $input['num_posts'] );
+            $newInput['num_posts'] = sanitize_text_field( $input['num_posts'] );
 
-        return $new_input;
+        return $newInput;
     }
 
     /**
@@ -173,5 +173,97 @@ class FbpwSettingsPages
             '<input type="text" id="num_posts" name="fb-pinwall-options[num_posts]" value="%s" />',
             isset( $this->options['num_posts'] ) ? esc_attr( $this->options['num_posts']) : ''
         );
+    }
+}
+
+class FbFeed
+{
+    private $appId;
+    private $appSecret;
+    private $fbPages;
+    private $numPost;
+    private $feed;
+
+    public function __construct($appId, $appSecret, $fbPages, $numPosts) {
+        if (!$appId) throw new \Exception("Invalid app App ID");
+        if (!$appSecret) throw new \Exception("Invalid App Secret");
+        if (!$fbPages) throw new \Exception("Undefined pages for feed");
+        if (!$numPosts || $numPosts < 0) throw new \Exception("Numpost must be greater then 0");
+
+        $this->appId = $appId;
+        $this->appSecret = $appSecret;
+        $this->fbPages = $fbPages;
+        $this->numPosts = $numPosts;
+        $this->feed = $this->feedData();
+    }
+
+    public function getHtml() {
+        return $this->htmlFromFeed();
+    }
+
+    /**
+     * Calls the Facebook API, generates an acces token, gets image feeds foreach profile id
+     * Loops throw images, creates thumnails for new images and creates an array of all images
+     *
+     * @return array
+     */
+    private function feedData() {
+    	//FB Pages for feed
+    	$profileIds = explode(",", $this->fbPages);
+
+    	//retrieve auth token
+    	$authToken = @file_get_contents("https://graph.facebook.com/oauth/access_token?type=client_cred&client_id={$this->appId}&client_secret={$this->appSecret}");
+        if ($authToken === false) {
+            throw new Exception("Could not create auth token. APP_ID or APP_SECRET might not be valid");
+        }
+
+    	$feed = array();
+
+    	foreach ($profileIds as $profileId) {
+    		//retrive data
+    		$data = @file_get_contents("https://graph.facebook.com/{$profileId}/photos/uploaded?{$authToken}&limit=".$this->numPosts);
+            if ($data === false) {
+                trigger_error("Could not fetch data. Invalid profile Id: {$profileId}", E_USER_NOTICE);
+            } else {
+                $images = json_decode($data);
+        		foreach ($images->data as $image) {
+
+        			$wp_upload_dir = wp_upload_dir('fbpw');
+
+        			//Create a custom Thumbnail
+        			$thumb = 'thumb_'.md5($image->images[0]->source).".".fbpw_get_extension_from_url($image->images[0]->source);
+        			if (!file_exists($wp_upload_dir['path']."/".$thumb)) {
+        				fbpw_make_thumb($image->images[0]->source, $wp_upload_dir['path']."/".$thumb, 250);
+        			}
+
+        			$feed[] = array(
+        				'title' => $image->from->name,
+        				'thumb' => $wp_upload_dir['url']."/".$thumb,
+        				'src' => $image->images[0]->source,
+        				'created' => strtotime($image->created_time),
+        			);
+        		}
+            }
+    	}
+
+    	return $feed;
+    }
+
+    /**
+     * Converts the feed to HTML
+     */
+    private function htmlFromFeed() {
+
+    	$output = "<div class='fbpw'>";
+
+    	foreach ($this->feed as $data) {
+    		$output .= "<a href='{$data['src']}' class='fbpw-image'>";
+    		$output .= "<img src='{$data['thumb']}'>";
+    		$output .= "</a>";
+    	}
+
+    	$output .= "</div> <div style='clear:both;'></div>";
+
+    	return $output;
     }
 }
