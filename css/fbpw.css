@@ -1,0 +1,14 @@
+.fbpw {
+	width: 100%;
+	display: block;
+}
+
+.fbpw img {
+	margin: 5px;
+	border: none !important;
+	padding: 0;
+}
+
+.fbpw a {
+	border: none !important;
+}
