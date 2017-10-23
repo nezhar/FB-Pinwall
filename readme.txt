@@ -49,6 +49,9 @@ Debug information is shoud if you enable the **WP_DEBUG** option inside the **wp
 
 == Changelog ==
 
+= 1.1.0 =
+Fixes for facebook api v2.10
+
 = 1.0.2 =
 Refactoring shortcode and functions
 

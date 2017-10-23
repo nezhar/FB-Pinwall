@@ -208,45 +208,59 @@ class FbFeed
      * @return array
      */
     private function feedData() {
-    	//FB Pages for feed
-    	$profileIds = explode(",", $this->fbPages);
+        $feed = array();
 
-    	//retrieve auth token
-    	$authToken = @file_get_contents("https://graph.facebook.com/oauth/access_token?type=client_cred&client_id={$this->appId}&client_secret={$this->appSecret}");
-        if ($authToken === false) {
+        // FB Pages for feed
+        $profileIds = explode(",", $this->fbPages);
+
+        // Retrieve auth token
+        $response = @file_get_contents("https://graph.facebook.com/oauth/access_token?type=client_cred&client_id={$this->appId}&client_secret={$this->appSecret}");
+        if ($response === false) {
             throw new Exception("Could not create auth token. APP_ID or APP_SECRET might not be valid");
+        } else {
+            $authToken = json_decode($response)->access_token;
         }
 
-    	$feed = array();
+        # Graph query params
+        $type = 'type=uploaded';
+        $fields = 'fields=images,name,from,created_time';
+        $access_token = 'access_token='.$authToken;
+        $limit = 'limit='.$this->numPosts;
 
-    	foreach ($profileIds as $profileId) {
-    		//retrive data
-    		$data = @file_get_contents("https://graph.facebook.com/{$profileId}/photos/uploaded?{$authToken}&limit=".$this->numPosts);
+        $api_version = 'v2.10';
+        $api_endpoint = 'photos';
+        $api_query = implode("&", [$type, $fields, $access_token, $limit]);
+
+        // Retrive images
+        foreach ($profileIds as $profileId) {
+            $url = "https://graph.facebook.com/{$api_version}/{$profileId}/{$api_endpoint}/?{$api_query}";
+            $data = @file_get_contents($url);
+
             if ($data === false) {
                 trigger_error("Could not fetch data. Invalid profile Id: {$profileId}", E_USER_NOTICE);
             } else {
                 $images = json_decode($data);
-        		foreach ($images->data as $image) {
 
-        			$wp_upload_dir = wp_upload_dir('fbpw');
+                foreach ($images->data as $image) {
+                    $wp_upload_dir = wp_upload_dir('fbpw');
 
-        			//Create a custom Thumbnail
-        			$thumb = 'thumb_'.md5($image->images[0]->source).".".fbpw_get_extension_from_url($image->images[0]->source);
-        			if (!file_exists($wp_upload_dir['path']."/".$thumb)) {
-        				fbpw_make_thumb($image->images[0]->source, $wp_upload_dir['path']."/".$thumb, 250);
-        			}
+                    // Create a custom Thumbnail
+                    $thumb = 'thumb_'.md5($image->images[0]->source).".".fbpw_get_extension_from_url($image->images[0]->source);
+                    if (!file_exists($wp_upload_dir['path']."/".$thumb)) {
+                        fbpw_make_thumb($image->images[0]->source, $wp_upload_dir['path']."/".$thumb, 250);
+                    }
 
-        			$feed[] = array(
-        				'title' => $image->from->name,
-        				'thumb' => $wp_upload_dir['url']."/".$thumb,
-        				'src' => $image->images[0]->source,
-        				'created' => strtotime($image->created_time),
-        			);
-        		}
+                    $feed[] = array(
+                        'title' => $image->from->name,
+                        'thumb' => $wp_upload_dir['url']."/".$thumb,
+                        'src' => $image->images[0]->source,
+                        'created' => strtotime($image->created_time),
+                    );
+                }
             }
-    	}
+        }
 
-    	return $feed;
+        return $feed;
     }
 
     /**
@@ -254,16 +268,16 @@ class FbFeed
      */
     private function htmlFromFeed() {
 
-    	$output = "<div class='fbpw'>";
+        $output = "<div class='fbpw'>";
 
-    	foreach ($this->feed as $data) {
-    		$output .= "<a href='{$data['src']}' class='fbpw-image'>";
-    		$output .= "<img src='{$data['thumb']}'>";
-    		$output .= "</a>";
-    	}
+        foreach ($this->feed as $data) {
+            $output .= "<a href='{$data['src']}' class='fbpw-image'>";
+            $output .= "<img src='{$data['thumb']}'>";
+            $output .= "</a>";
+        }
 
-    	$output .= "</div> <div style='clear:both;'></div>";
+        $output .= "</div> <div style='clear:both;'></div>";
 
-    	return $output;
+        return $output;
     }
 }

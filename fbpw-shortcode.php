@@ -17,18 +17,18 @@ function fbpw_func($atts) {
     if ($fbpw_options['facebook_app_key'] && $fbpw_options['facebook_app_secret']) {
         try {
             //Get Data from Facebook feeds
-        	$feed = new fbpw\FbFeed(
+            $feed = new fbpw\FbFeed(
                 $fbpw_options['facebook_app_key'],
                 $fbpw_options['facebook_app_secret'],
                 $options['fb-pages'],
                 $options['num-posts']
             );
 
-        	//Create HTML of the feed Data
-        	$html = $feed->getHtml();
+            //Create HTML of the feed Data
+            $html = $feed->getHtml();
 
             //Replace Shortcode
-        	return $html;
+            return $html;
         } catch (Exception $e) {
             return fbpw_error_message($e->getMessage());
         }
